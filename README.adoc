@@ -7,6 +7,8 @@ endif::[]
 
 A tool for building dependencies of a Gradle project from their sources during the build of the dependent Gradle project.
 
+WARNING: Unlike `srcdeps-maven`, `srcdeps-gradle-plugin` is very new. Expect issues of all kinds!
+
 A similar tool for building source dependencies of Maven projects lives under https://github.com/srcdeps/srcdeps-maven .
 Contributions to support Ant, sbt and other Java build tools are welcome!
 
@@ -28,12 +30,12 @@ Check this presentation find out more about source dependencies in Java: http://
 == `srcdeps` support for Gradle
 
 You need to use Gradle 3.5+ to build a Gradle project that has source dependencies.
-With `srcdeps-gradle-plugin, a Gradle project may depend on a source commit of another Gradle project
+With `srcdeps-gradle-plugin`, a Gradle project may depend on a source commit of another Gradle project
 or on a source commit of a Maven project.
 
 The present solution for Gradle iterates over the dependencies during the `afterEvaluate` phase. In case an
 artifact with `-SRC-` in its version string is found, the `srcdeps-core` library is called, to build and install
-it to the Maven Local Repository. In later, phases Gradle is able to pull those dependecies from there.
+the binaries to the Maven Local Repository. In later phases, Gradle is able to pull those binaries from the Local Maven Repository.
 
 === How to configure `srcdeps` for Gradle
 
@@ -63,13 +65,12 @@ line. See  https://github.com/srcdeps/srcdeps-core/tree/master/doc/srcdeps-yaml-
 
 === Examples a.k.a. Quickstarts
 
-There are ready-to-build self-contained examples in the
-link:quickstarts[quickstarts] directory:
+There are ready-to-build self-contained examples in the link:quickstarts[quickstarts] directory:
 
 * link:quickstarts/srcdeps-gradle-dep-gradle-git-revision-quickstart[srcdeps-gradle-dep-gradle-git-revision-quickstart]
   demonstrates how a Gradle project can depend on a source revision of another Gradle project.
 * link:quickstarts/srcdeps-gradle-dep-maven-git-revision-quickstart[srcdeps-gradle-dep-maven-git-revision-quickstart]
-  demonstrates how a Gradle project can depend on a source revision of a Maven project.
+  contains a Gradle project with a dependency on a source revision of a Maven project.
 
 == Misc.
 
