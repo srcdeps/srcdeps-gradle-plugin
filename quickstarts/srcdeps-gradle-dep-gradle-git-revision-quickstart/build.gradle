@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.srcdeps.gradle.plugin:srcdeps-gradle-plugin:0.0.1-SNAPSHOT'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'org.srcdeps.gradle.plugin'
+
+sourceCompatibility = 1.7
+group = 'org.srcdeps.gradle.plugin.quickstarts.srcdeps-gradle-dep-gradle-git-revision-quickstart'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.srcdeps.test.gradle:srcdeps-test-artifact-gradle-impl:1.0-SRC-revision-e63539236a94e8f6c2d720f8bda0323d1ce4db0f'
+    testCompile 'junit:junit:4.12'
+}
+

@@ -1,0 +1,78 @@
+= `srcdeps` Gradle Plugin
+
+ifdef::env-github[]
+[link=https://travis-ci.org/srcdeps/srcdeps-gradle-plugin]
+image:https://travis-ci.org/srcdeps/srcdeps-gradle-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/srcdeps/srcdeps-maven"]
+endif::[]
+
+A tool for building dependencies of a Gradle project from their sources during the build of the dependent Gradle project.
+
+WARNING: Unlike `srcdeps-maven`, `srcdeps-gradle-plugin` is very new. Expect issues of all kinds!
+
+A similar tool for building source dependencies of Maven projects lives under https://github.com/srcdeps/srcdeps-maven .
+Contributions to support Ant, sbt and other Java build tools are welcome!
+
+= What is this good for?
+
+Source dependencies can help in situations, when the binaries of a dependency are not available in any remote
+Maven repository. It may happen for various reasons, such as:
+
+* The dependency project has not released yet because they release e.g. biweekly, but you want to develop and test your
+  project on top of their changes continuously - in the most extreme case, you want to integrate each of their commits.
+  This helps to find issues early and shorten your own delivery cycles.
+* The dependency project has not released for whatever other reasons (other priorities, project discontinued, ...)
+  but you still need to consume some commit from their branch.
+* The dependency project is doing nasty things and you do not want to consume their binaries. You want to fork their
+  source repository, cherry-pick only some of their commits and let srcdeps build out of your fork on the fly.
+
+Check this presentation find out more about source dependencies in Java: http://ppalaga.github.io/presentations/170508-jug-vienna/index.html
+
+== `srcdeps` support for Gradle
+
+You need to use Gradle 3.5+ to build a Gradle project that has source dependencies.
+With `srcdeps-gradle-plugin`, a Gradle project may depend on a source commit of another Gradle project
+or on a source commit of a Maven project.
+
+The present solution for Gradle iterates over the dependencies during the `afterEvaluate` phase. In case an
+artifact with `-SRC-` in its version string is found, the `srcdeps-core` library is called, to build and install
+the binaries to the Maven Local Repository. In later phases, Gradle is able to pull those binaries from the Local Maven Repository.
+
+=== How to configure `srcdeps` for Gradle
+
+A few settings have to be configured in `srcdeps.yaml` file. Especially, the mapping from groupId's of
+dependencies to SCM repositories where their sources reside. This is a minimal `srcdeps.yaml` file. Please
+refer to link:https://github.com/srcdeps/srcdeps-core/tree/master/doc/srcdeps.yaml[srcdeps.yaml reference] for more
+details.
+
+The `srcdeps.yaml` file has to be located in the root directory of a Gradle source tree.
+
+[source,yaml]
+----
+configModelVersion: 2.2
+repositories:
+  org.my-group:
+    includes:
+    - org.my-group:*:*  # if one of the includes matches the groupId of a -SRC- dependency,
+                        # then the following urls will be used to build that dependency
+    urls:
+    - https://github.com/my-org/my-project.git  # If you list multiple SCM repos here then only
+                                                # the first successful checkout will count
+
+----
+
+Note that all options configurable in `srcdeps.yaml` can be overriden through system properties passed on the command
+line. See  https://github.com/srcdeps/srcdeps-core/tree/master/doc/srcdeps-yaml-runtime-overrides.adoc
+
+=== Examples a.k.a. Quickstarts
+
+There are ready-to-build self-contained examples in the link:quickstarts[quickstarts] directory:
+
+* link:quickstarts/srcdeps-gradle-dep-gradle-git-revision-quickstart[srcdeps-gradle-dep-gradle-git-revision-quickstart]
+  demonstrates how a Gradle project can depend on a source revision of another Gradle project.
+* link:quickstarts/srcdeps-gradle-dep-maven-git-revision-quickstart[srcdeps-gradle-dep-maven-git-revision-quickstart]
+  contains a Gradle project with a dependency on a source revision of a Maven project.
+
+== Misc.
+
+* All code and contributions are under link:LICENSE.txt[Apache License]
+* Issues and Discussions: https://github.com/srcdeps/srcdeps-maven-plugin/issues
