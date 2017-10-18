@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.srcdeps.gradle.plugin:srcdeps-gradle-plugin:0.0.1'
+        classpath 'org.srcdeps.gradle.plugin:srcdeps-gradle-plugin:0.0.2-SNAPSHOT'
     }
 }
 
