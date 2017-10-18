@@ -1,33 +1,100 @@
+buildscript {
+        repositories {
+                mavenCentral()
+        }
+        dependencies {
+                classpath 'com.adaptc.gradle:nexus-workflow:0.6'
+        }
+}
 
 group = 'org.srcdeps.gradle.plugin'
 version = '0.0.1-SNAPSHOT'
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'nexus-workflow'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.7
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+        mavenLocal()
+        mavenCentral()
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile gradleApi()
-    compile 'org.srcdeps.core:srcdeps-core:3.2.0'
-    compile 'org.srcdeps.core:srcdeps-core-config-yaml:3.2.0'
-    runtime 'org.yaml:snakeyaml:1.17'
-    runtime 'org.eclipse.jgit:org.eclipse.jgit:4.5.0.201609210915-r'
-    compile 'com.google.inject:guice:4.0'
-    compile 'org.eclipse.sisu:org.eclipse.sisu.inject:0.3.3'
-    testCompile 'junit:junit:4.12'
-    testCompile gradleTestKit()
+        compile gradleApi()
+        compile localGroovy()
+        compile gradleApi()
+        compile 'org.srcdeps.core:srcdeps-core:3.2.0'
+        compile 'org.srcdeps.core:srcdeps-core-config-yaml:3.2.0'
+        runtime 'org.yaml:snakeyaml:1.17'
+        runtime 'org.eclipse.jgit:org.eclipse.jgit:4.5.0.201609210915-r'
+        compile 'com.google.inject:guice:4.0'
+        compile 'org.eclipse.sisu:org.eclipse.sisu.inject:0.3.3'
+        testCompile 'junit:junit:4.12'
+        testCompile gradleTestKit()
 }
 
 test{
-  systemProperties = System.getProperties()
-  systemProperties['project.build.directory'] = project.file('build').absolutePath
+    systemProperties = System.getProperties()
+    systemProperties['project.build.directory'] = project.file('build').absolutePath
 }
 
+task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+}
+
+task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+}
+
+artifacts {
+        archives javadocJar, sourcesJar
+}
+
+signing {
+        sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'srcdeps Gradle Plugin'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'A tool for building dependencies of a Gradle project from their sources during the build of the dependent Gradle project.'
+                url 'https://github.com/srcdeps/srcdeps-gradle-plugin'
+
+                scm {
+                    connection 'scm:git:https://github.com/srcdeps/srcdeps-gradle-plugin.git'
+                    developerConnection 'scm:git:git@github.com:srcdeps/srcdeps-gradle-plugin.git'
+                    url 'https://github.com/srcdeps/srcdeps-gradle-plugin'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'ppalaga'
+                        name 'Peter Palaga'
+                    }
+                }
+            }
+        }
+    }
+}
